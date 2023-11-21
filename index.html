@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Runner</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <style>
+      button {
+        z-index: 999;
+        position: absolute;
+        background-color: grey;
+        border: 2px solid black;
+        border-radius: 25px;
+        bottom: 10%;
+        padding: 50px;
+      }
+      #right {
+        display: none;
+        right: 25%;
+      }
+      #left {
+        display: none;
+        left: 25%;
+      }
+      #jump {
+        left: 46.125%;
+      }
+    </style>
+    <a-scene background="color: black">
+      <a-entity id="cameraRig" position="0 0 0"></a-entity>
+      <a-entity
+        id="soundSource"
+        sound="src: url(your_sound_file.mp3); autoplay: false;"
+      ></a-entity>
+      <a-text
+        id="titleStart"
+        value="Press the start button to play"
+        position="0 3 -3"
+        align="center"
+        width="8"
+        color="white"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        fontImage="https://cdn.aframe.io/fonts/Exo2Bold.png"
+        wrap-count="20"
+      ></a-text>
+
+      <a-plane
+        id="ground"
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuWzV4ewfsUOW7JFYrplKkGkDOSlI63MiWyA&usqp=CAU"
+        position="0 0 -50"
+        rotation="-90 0 0"
+        width="5"
+        height="100"
+        shadow
+      ></a-plane>
+
+      <button id="right">-></button>
+      <button id="left" display="none"><-</button>
+      <button id="jump" display="none">Start</button>
+    </a-scene>
+    <script>
+      const jumpKey = document.querySelector("#jump");
+      const leftKey = document.querySelector("#left");
+      const rightKey = document.querySelector("#right");
+      const ground = document.querySelector("#ground");
+      const title = document.querySelector("#titleStart");
+
+      var gameStarted = false;
+
+      function playWinSound() {
+        const sound = document.querySelector("#soundSource");
+        sound.setAttribute("sound", "src", "url(win.mp3)");
+        sound.components.sound.playSound();
+      }
+
+      function playerGoTo(coordinates) {
+        const cameraRig = document.querySelector("#cameraRig");
+        const [x, y, z] = coordinates.split(" ");
+        cameraRig.setAttribute("position", `${x} ${y} ${z}`);
+      }
+
+      rightKey.addEventListener("click", function () {
+        playerGoTo("0 0 1.3");
+      });
+      leftKey.addEventListener("click", function () {
+        playerGoTo("0 0 -1.3");
+      });
+
+      jumpKey.addEventListener("click", () => {
+        if (!gameStarted) {
+          gameStarted = true;
+          ground.setAttribute("animation", {
+            property: "position",
+            to: "0 0 50",
+            dur: 6000,
+          });
+
+          title.attributes.value.value = "";
+
+          jumpKey.innerHTML = "Jump";
+          leftKey.style.display = "block";
+          rightKey.style.display = "block";
+
+          setTimeout(() => {
+            jumpKey.innerHTML = "Restart";
+            title.attributes.value.value = "You win!";
+            playWinSound();
+            jumpKey.addEventListener("click", () => {
+              window.location.reload();
+            });
+          }, 6000);
+        } else {
+          ground.setAttribute(
+            "position",
+            "0 -2 " + ground.getAttribute("position").z
+          );
+        }
+      });
+    </script>
+  </body>
+</html>
